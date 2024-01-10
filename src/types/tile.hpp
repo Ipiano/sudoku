@@ -7,6 +7,8 @@
 #include <cstdint>
 
 namespace sudoku::types {
+
+//! Tile on the sudoku board. Can be 0-9 where 0 represents unset
 class Tile
 {
   public:
@@ -16,13 +18,9 @@ class Tile
         SUDOKU_ASSERT(value >= 0 && value <= 9);
     }
 
-    template<std::integral T>
-    std::strong_ordering operator<=>(T other) const
-    {
-        return operator<=>(Tile(other));
-    }
-
     std::strong_ordering operator<=>(const Tile& other) const = default;
+
+    explicit operator bool() const { return _value != 0; }
 
   private:
     std::uint8_t _value;

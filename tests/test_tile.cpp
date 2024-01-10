@@ -26,3 +26,9 @@ TEST(Sudoku, Tile_Assignment)
     t = sudoku::types::Tile(9);
     EXPECT_EQ(t, 9);
 }
+
+TEST(Sudoku, Tile_0IsSet)
+{
+    EXPECT_TRUE(sudoku::types::Tile(1));
+    EXPECT_FALSE(sudoku::types::Tile(0));
+}
