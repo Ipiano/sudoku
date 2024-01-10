@@ -21,6 +21,7 @@ class Tile
     std::strong_ordering operator<=>(const Tile& other) const = default;
 
     explicit operator bool() const { return _value != 0; }
+    std::uint8_t value() const { return _value; }
 
   private:
     std::uint8_t _value;
