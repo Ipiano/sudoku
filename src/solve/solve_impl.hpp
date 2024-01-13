@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types/board.hpp"
+#include "types/index.hpp"
 
 #include <optional>
 
