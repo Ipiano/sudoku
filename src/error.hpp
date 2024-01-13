@@ -12,7 +12,7 @@ class AssertionFailure : public Error
 {
   public:
     AssertionFailure(const char* file, int line, const char* assertion) :
-        Error("Assertion failed '" + std::string(assertion) + "' @ " + std::string(file) + ":" +
+        Error("Assertion failed @ " + std::string(file) + ":" + std::to_string(line) + "\n" +
               std::string(assertion))
     {
     }
