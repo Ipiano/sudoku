@@ -57,4 +57,21 @@ bool is_valid(types::Board input)
 
     return true;
 }
+
+std::vector<types::board::Index> empty_list(const types::Board& board)
+{
+    std::vector<types::board::Index> list;
+    list.reserve(81);
+
+    for (const auto index : utility::board_indices())
+    {
+        if (!board[index])
+        {
+            list.push_back(index);
+        }
+    }
+
+    return list;
+}
+
 }  // namespace sudoku::solve

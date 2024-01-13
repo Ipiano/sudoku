@@ -13,4 +13,7 @@ std::optional<types::Board> solve_impl(types::Board input);
 // Not cheap - don't use frequently in the solution
 bool is_valid(types::Board input);
 
+// Build a list of the empty spaces on a board
+std::vector<types::board::Index> empty_list(const types::Board& board);
+
 }  // namespace sudoku::solve
