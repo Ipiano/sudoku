@@ -18,6 +18,8 @@ class Board
     Tile& operator[](board::Index index);
     Tile operator[](board::Index index) const;
 
+    bool operator==(const Board& other) const = default;
+
   private:
     std::vector<std::vector<Tile>> _tiles;
 };
