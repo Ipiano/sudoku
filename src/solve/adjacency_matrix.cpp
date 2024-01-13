@@ -2,6 +2,7 @@
 
 #include "error.hpp"
 #include "types/index.hpp"
+#include "utility/indices.hpp"
 
 namespace sudoku::solve {
 
@@ -38,49 +39,38 @@ AdjacencyMatrix adjacency_matrix_from_open_spaces(const types::Board& board)
 
     auto add_links = [](const types::Board& b, AdjacencyMatrix& m, types::board::Index empty) {
         // Add all empty squares in the same row (at most 8)
-        for (std::size_t i = 0; i < 9; ++i)
+        for (const auto index : utility::row_indices(empty.row()))
         {
-            types::board::Index candidate(i, empty.col());
-            if (i != empty.row() && !b[candidate])
+            if (index != empty && !b[index])
             {
-                m.add(empty, candidate);
+                m.add(empty, index);
             }
         }
 
         // Add all empty squares in the same column (at most 8)
-        for (std::size_t i = 0; i < 9; ++i)
+        for (const auto index : utility::col_indices(empty.col()))
         {
-            types::board::Index candidate(empty.row(), i);
-            if (i != empty.col() && !b[candidate])
+            if (index != empty && !b[index])
             {
-                m.add(empty, candidate);
+                m.add(empty, index);
             }
         }
 
         // Add any other empty spots in the same box (at most 4)
-        types::board::Index box_corner(empty.row() / 3 * 3, empty.col() / 3 * 3);
-        for (std::size_t i = 0; i < 3; ++i)
+        for (const auto index : utility::box_indices(empty))
         {
-            for (std::size_t j = 0; j < 3; ++j)
+            if (index.row() != empty.row() && index.col() != empty.col() && !b[index])
             {
-                types::board::Index candidate(box_corner.row() + i, box_corner.col() + j);
-                if (candidate.row() != empty.row() && candidate.col() != empty.col() &&
-                    !b[candidate])
-                {
-                    m.add(empty, candidate);
-                }
+                m.add(empty, index);
             }
         }
     };
 
-    for (std::size_t i = 0; i < 9; ++i)
+    for (const auto index : utility::board_indices())
     {
-        for (std::size_t j = 0; j < 9; ++j)
+        if (!board[index])
         {
-            if (!board[{i, j}])
-            {
-                add_links(board, result, {i, j});
-            }
+            add_links(board, result, index);
         }
     }
 

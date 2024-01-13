@@ -1,6 +1,7 @@
 #include "types/board.hpp"
 
 #include "types/index.hpp"
+#include "utility/indices.hpp"
 
 namespace sudoku::types {
 Board::Board() : _tiles(9, std::vector<Tile>(9, Tile(0)))
@@ -34,12 +35,9 @@ Board create_board(std::array<Tile, 81> initial_tiles)
     Board b;
     auto tile_it = initial_tiles.begin();
 
-    for (std::size_t i = 0; i < 9; ++i)
+    for (const auto index : utility::board_indices())
     {
-        for (std::size_t j = 0; j < 9; ++j)
-        {
-            b[{i, j}] = *tile_it++;
-        }
+        b[index] = *tile_it++;
     }
 
     return b;
