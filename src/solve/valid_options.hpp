@@ -12,6 +12,7 @@ class ValidOptions
 {
   public:
     bool is_valid(types::board::Index index, types::Tile option) const;
+    std::uint8_t option_count(types::board::Index index) const;
 
     void add_option(types::board::Index index, types::Tile option);
     void remove_option(types::board::Index index, types::Tile option);

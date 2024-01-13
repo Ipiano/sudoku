@@ -10,6 +10,11 @@ bool ValidOptions::is_valid(types::board::Index index, types::Tile option) const
     return _valid_options[hash(index)].test(option.value());
 }
 
+std::uint8_t ValidOptions::option_count(types::board::Index index) const
+{
+    return _valid_options[hash(index)].count();
+}
+
 void ValidOptions::add_option(types::board::Index index, types::Tile option)
 {
     _valid_options[hash(index)].set(option.value());
