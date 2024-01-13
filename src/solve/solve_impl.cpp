@@ -3,6 +3,7 @@
 #include "error.hpp"
 #include "solve/adjacency_matrix.hpp"
 #include "solve/valid_options.hpp"
+#include "types/board.hpp"
 #include "types/index.hpp"
 #include "utility/indices.hpp"
 
@@ -21,14 +22,18 @@ namespace sudoku::solve {
 bool recursive_solve(types::Board& board_state,
                      std::vector<types::board::Index>& empty_tiles,
                      ValidOptions& valid_options,
-                     const AdjacencyMatrix& adj_matrix);
+                     const AdjacencyMatrix& adj_matrix,
+                     std::vector<types::Board>& solutions,
+                     std::size_t max_solutions);
 
-std::optional<types::Board> solve_impl(types::Board input)
+std::vector<types::Board> solve_internal(types::Board input, std::size_t max_solutions = 0)
 {
+    std::vector<types::Board> solutions;
+
     // Make sure we haven't been giving a failing board to start
     if (!is_valid(input))
     {
-        return std::nullopt;
+        return solutions;
     }
 
     // Build the adjacency matrix for open spaces. This contains links between
@@ -48,24 +53,33 @@ std::optional<types::Board> solve_impl(types::Board input)
     // because it's shuffling around like 200 bytes without any allocations
     auto empties = empty_list(input);
 
-    const auto original = input;
-    if (recursive_solve(input, empties, options, adj_matrix))
+    recursive_solve(input, empties, options, adj_matrix, solutions, max_solutions);
+
+    return solutions;
+}
+
+std::optional<types::Board> solve_impl(types::Board input)
+{
+    const auto solutions = solve_internal(input, 1);
+    if (solutions.size() == 1)
     {
-        SUDOKU_ASSERT(is_valid(input));
-        SUDOKU_ASSERT([input] {
+        const auto answer = solutions[0];
+
+        SUDOKU_ASSERT(is_valid(answer));
+        SUDOKU_ASSERT([answer] {
             for (const auto index : utility::board_indices())
             {
-                if (!input[index])
+                if (!answer[index])
                 {
                     return false;
                 }
             }
             return true;
         }());
-        SUDOKU_ASSERT(([original, input] {
+        SUDOKU_ASSERT(([input, answer] {
             for (const auto index : utility::board_indices())
             {
-                if (original[index] && original[index] != input[index])
+                if (input[index] && input[index] != answer[index])
                 {
                     return false;
                 }
@@ -73,11 +87,15 @@ std::optional<types::Board> solve_impl(types::Board input)
             return true;
         }()));
 
-        static_cast<void>(original);
-        return input;
+        return answer;
     }
 
     return std::nullopt;
+}
+
+std::vector<types::Board> solve_all_impl(types::Board input)
+{
+    return solve_internal(input);
 }
 
 bool is_valid(types::Board input)
@@ -138,11 +156,14 @@ std::vector<types::board::Index> empty_list(const types::Board& board)
 bool recursive_solve(types::Board& board_state,
                      std::vector<types::board::Index>& empty_tiles,
                      ValidOptions& valid_options,
-                     const AdjacencyMatrix& adj_matrix)
+                     const AdjacencyMatrix& adj_matrix,
+                     std::vector<types::Board>& solutions,
+                     std::size_t max_solutions)
 {
     if (empty_tiles.empty())
     {
-        return true;
+        solutions.push_back(board_state);
+        return solutions.size() == max_solutions;
     }
 
     const auto [next_index_it, next_index_count] = [&] {
@@ -190,7 +211,8 @@ bool recursive_solve(types::Board& board_state,
             }
 
             board_state[next_index] = value;
-            if (recursive_solve(board_state, empty_tiles, valid_options, adj_matrix))
+            if (recursive_solve(
+                    board_state, empty_tiles, valid_options, adj_matrix, solutions, max_solutions))
             {
                 return true;
             }

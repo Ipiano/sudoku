@@ -9,12 +9,13 @@
 struct Args
 {
     bool silent = false;
+    bool all = false;
 };
 
 void usage(const char* argv0);
 Args parse_args(int argc, char** argv);
 
-void solve_board(sudoku::types::Board input, bool silent = false);
+void solve_board(sudoku::types::Board input, bool silent = false, bool all = false);
 void print_board(sudoku::types::Board input);
 
 int main(int argc, char** argv)
@@ -35,7 +36,7 @@ int main(int argc, char** argv)
 
             if (next_board_index == board_indices.end())
             {
-                solve_board(current_board, args.silent);
+                solve_board(current_board, args.silent, args.all);
                 next_board_index = board_indices.begin();
             }
         }
@@ -64,6 +65,9 @@ Args parse_args(int argc, char** argv)
             } else if (argi == "--silent")
             {
                 result.silent = true;
+            } else if (argi == "--all")
+            {
+                result.all = true;
             } else
             {
                 std::cerr << "Invalid argument: " << argi << std::endl;
@@ -80,7 +84,7 @@ Args parse_args(int argc, char** argv)
         }
 
         if (exit)
-        std::exit(error ? 1 : 0);
+            std::exit(error ? 1 : 0);
     }
 
     return result;
@@ -93,6 +97,7 @@ Usage: ssolve [-h]
 
   -h          See this help
   --silent    Do not print output (used for benchmarking)
+  --all       Find all solutions, instead of only 1
 
 ssolve will read from stdin until the end of the stream is reached. All
 characters which are not numeric digits will be ignored. Every group
@@ -130,7 +135,7 @@ void print_board(sudoku::types::Board input)
     print_row(8);
 }
 
-void solve_board(sudoku::types::Board input, bool silent)
+void solve_board(sudoku::types::Board input, bool silent, bool all)
 {
     if (!silent)
     {
@@ -140,24 +145,33 @@ void solve_board(sudoku::types::Board input, bool silent)
 
     try
     {
-        const auto result = sudoku::find_solution(input);
-
-        if (result)
+        if (all)
         {
-            if (!sudoku::solve::is_valid(*result))
+            std::vector<sudoku::types::Board> solutions = sudoku::find_all_solutions(input);
+
+            if (!silent)
+                std::cout << "\n Solutions: " << solutions.size() << std::endl;
+        } else
+        {
+            const auto result = sudoku::find_solution(input);
+
+            if (result)
             {
-                if (!silent)
-                    std::cout << "\nInvalid Solution Returned:\n\n";
+                if (!sudoku::solve::is_valid(*result))
+                {
+                    if (!silent)
+                        std::cout << "\nInvalid Solution Returned:\n\n";
+                } else
+                {
+                    if (!silent)
+                        std::cout << "\nSolution:\n\n";
+                }
+                print_board(*result);
             } else
             {
                 if (!silent)
-                    std::cout << "\nSolution:\n\n";
+                    std::cout << "\nNo Solution!" << std::endl;
             }
-            print_board(*result);
-        } else
-        {
-            if (!silent)
-                std::cout << "\nNo Solution!" << std::endl;
         }
     } catch (const sudoku::AssertionFailure& ex)
     {

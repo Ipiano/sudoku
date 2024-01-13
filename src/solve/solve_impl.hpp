@@ -4,9 +4,11 @@
 #include "types/index.hpp"
 
 #include <optional>
+#include <vector>
 
 namespace sudoku::solve {
 std::optional<types::Board> solve_impl(types::Board input);
+std::vector<types::Board> solve_all_impl(types::Board input);
 
 // Check if a given board state is valid - meaning that it does not
 // contain any invalid moves (but may contain empty spaces)
