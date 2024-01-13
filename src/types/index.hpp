@@ -21,7 +21,7 @@ class Index
     std::uint8_t row() const { return _row; }
     std::uint8_t col() const { return _col; }
 
-    bool operator==(const Index& other) const = default;
+    bool operator!=(const Index& other) const = default;
 
   private:
     std::uint8_t _row;
